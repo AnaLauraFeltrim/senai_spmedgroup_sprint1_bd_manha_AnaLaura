@@ -32,7 +32,7 @@ go
 
 create table Usuario (
 IdUsuario int primary key identity,
-Email varchar(200),
+Email varchar(200) unique,
 Senha varchar(200),
 IdTipoUsuario int foreign key references TipoUsuario(IdTipoUsuario)
 );
@@ -41,8 +41,8 @@ go
 create table Paciente (
 IdPaciente int primary key identity,
 Nome varchar(200),
-CPF varchar(200),
-RG varchar(200),
+CPF varchar(200) unique ,
+RG varchar(200)unique,
 Endereco varchar (200),
 DataNas date,
 IdUsuario int foreign key references Usuario(IdUsuario)
@@ -52,7 +52,7 @@ go
 create table Medico (
 IdMedico int primary key identity,
 Nome varchar(200),
-CRM varchar (200),
+CRM varchar (200) unique,
 IdClinica int foreign key references Clinica(IdClinica),
 IdEspecialidade int foreign key references Especialidade(IdEspecialidade),
 IdUsuario int foreign key references Usuario(IdUsuario)
@@ -67,6 +67,22 @@ IdPaciente int foreign key references Paciente(IdPaciente),
 IdMedico int foreign key references Medico (IdMedico),
 IdSituacao int foreign key references Situacao (IdSituacao)
 );
+go
+
+create procedure idadePacientes
+as 
+select 
+Nome,
+CPF,
+format (DataNas, 'MM/dd/yyyy') as DataNascimento,
+convert(varchar,GETDATE(),1) as [DataHoje],
+datediff (YY,DataNas,getdate()) -
+case 
+	when dateadd(YY,datediff(YY,DataNas,getdate()), DataNas)
+		> getdate() then 1
+	else 0
+end as [Idade]
+from Paciente;
 go
 
 insert into Clinica(NomeFant, RazaoSocial, CNPJ,Endereco,Horario)
@@ -114,4 +130,14 @@ select IdConsulta, Descricao, DataConsulta,Paciente.Nome as Paciente , Medico.No
 inner join Paciente on Consulta.IdPaciente = Paciente.IdPaciente
 inner join Medico on Consulta.IdMedico = Medico.IdMedico
 inner join Situacao on Consulta.IdSituacao = Situacao.IdSituacao
+
+select count (*) as MedicosCardiologistas from Medico 
+where Medico.IdEspecialidade = 2; 
+
+Exec idadePacientes;
+
+
+
+
+
 
