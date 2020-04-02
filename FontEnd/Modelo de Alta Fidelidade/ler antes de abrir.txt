@@ -1,0 +1,3 @@
+na tela de login: 
+apertar 1 para ir para a tela do paciente 
+enter para a tela do médico e apertar o login para ir para a tela de adm
